@@ -40,8 +40,8 @@ from transformers import (
     BertTokenizer,
     RobertaConfig,
     RobertaTokenizer,
-    get_linear_schedule_with_warmup,
 )
+from transformers import WarmupLinearSchedule as get_linear_schedule_with_warmup
 
 from cartography.classification.glue_utils import adapted_glue_compute_metrics as compute_metrics
 from cartography.classification.glue_utils import adapted_glue_convert_examples_to_features as convert_examples_to_features
@@ -51,7 +51,6 @@ from cartography.classification.diagnostics_evaluation import evaluate_by_catego
 from cartography.classification.models import (
     AdaptedBertForMultipleChoice,
     AdaptedBertForSequenceClassification,
-    AdaptedRobertaForMultipleChoice,
     AdaptedRobertaForSequenceClassification
 )
 from cartography.classification.multiple_choice_utils import convert_mc_examples_to_features
@@ -83,7 +82,6 @@ MODEL_CLASSES = {
     "bert": (BertConfig, AdaptedBertForSequenceClassification, BertTokenizer),
     "bert_mc": (BertConfig, AdaptedBertForMultipleChoice, BertTokenizer),
     "roberta": (RobertaConfig, AdaptedRobertaForSequenceClassification, RobertaTokenizer),
-    "roberta_mc": (RobertaConfig, AdaptedRobertaForMultipleChoice, RobertaTokenizer),
 }
 
 
@@ -126,7 +124,7 @@ def train(args, train_dataset, model, tokenizer):
 
     optimizer = AdamW(optimizer_grouped_parameters, lr=args.learning_rate, eps=args.adam_epsilon)
     scheduler = get_linear_schedule_with_warmup(
-        optimizer, num_warmup_steps=args.warmup_steps, num_training_steps=t_total
+        optimizer, warmup_steps=args.warmup_steps, t_total=t_total
     )
 
     # Check if saved optimizer or scheduler states exist
@@ -179,6 +177,11 @@ def train(args, train_dataset, model, tokenizer):
     if os.path.exists(args.model_name_or_path):
         # set global_step to gobal_step of last saved checkpoint from model path
         global_step = int(args.model_name_or_path.split("-")[-1].split("/")[0])
+        # comment the line above and uncomment the following lines, if you would like to fine-tune a pretrained model of your own
+        # try:
+        #      global_step = int(args.model_name_or_path.split("-")[-1].split("/")[0])
+        # except:
+        #      global_step = 0
         epochs_trained = global_step // (len(train_dataloader) // args.gradient_accumulation_steps)
         steps_trained_in_this_epoch = global_step % (
             len(train_dataloader) // args.gradient_accumulation_steps)
@@ -363,6 +366,9 @@ def save_model(args, model, tokenizer, epoch, best_epoch,  best_dev_performance)
     desired_metric = "acc"
     dev_performance = results.get(desired_metric)
     if dev_performance > best_dev_performance:
+        # comment the line above and uncomment the following line, if you would like to save the last checkpoint,
+        # even though its dev performance is worse than the best dev performance so far
+    # if True:
         best_epoch = epoch
         best_dev_performance = dev_performance
 
