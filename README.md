@@ -1,4 +1,4 @@
-# Dataset Cartography
+# Dataset Cartography [Updated]
 
 Code for the paper [Dataset Cartography: Mapping and Diagnosing Datasets with Training Dynamics](https://aclanthology.org/2020.emnlp-main.746) at EMNLP 2020.
 
@@ -138,7 +138,7 @@ Supported `$TASK`s include SNLI, QNLI, MNLI and WINOGRANDE, and `$METRIC`s inclu
 
 To select _hard-to-learn_ instances, set `$METRIC` as "confidence" and for _ambiguous_, set `$METRIC` as "variability". For _easy-to-learn_ instances: set `$METRIC` as "confidence" and use the flag `--worst`.
 
-#### Filter the most ambiguous samples from the MNLI training set
+#### Filter out the most ambiguous samples from the MNLI training set
 ```
 !python -m cartography.selection.train_dy_filtering \
     --filter \
