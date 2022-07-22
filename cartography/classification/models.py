@@ -4,7 +4,6 @@ from transformers import (BertForMultipleChoice,
                           BertForSequenceClassification,
                           RobertaForSequenceClassification)
 
-
 class AdaptedRobertaForSequenceClassification(RobertaForSequenceClassification):
     def __init__(self, config):
         super().__init__(config)
