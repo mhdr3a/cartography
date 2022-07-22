@@ -22,6 +22,20 @@ This repository can be used to build Data Maps, like [this one for SNLI using a 
 This repository is based on the [HuggingFace Transformers](https://github.com/huggingface/transformers) library.
 <!-- Hyperparameter tuning is based on [HFTune](https://github.com/allenai/hftune). -->
 
+#### Initial Setup
+```
+!git clone https://github.com/mhdr3a/cartography
+!mv /content/cartography /content/tmp
+!mv /content/tmp/* /content/
+!rm /content/tmp -r
+!pip install -r /content/requirements.txt
+```
+#### Download and Prepare the MNLI Dataset
+```
+!wget https://dl.fbaipublicfiles.com/glue/data/MNLI.zip
+!mkdir /content/data/ && mkdir /content/data/glue
+!unzip /content/MNLI.zip -d /content/data/glue/
+```
 
 ### Train GLUE-style model and compute training dynamics
 
@@ -44,6 +58,36 @@ The `.jsonl` file must contain the following fields for every training instance:
 - `logits_epoch_$X` : logits for the training instance under epoch `$X`,
 - `gold` : index of the gold label, must match the logits array.
 
+#### Train the RoBERTa-Base model with the MNLI training set for 6 epochs:
+```
+!python -m cartography.classification.run_glue \
+    -c configs/mnli.jsonnet \
+    --do_train \
+    --do_eval \
+    -o /content/results/
+!zip -r results.zip /content/results/
+!mkdir /content/drive/MyDrive/mnli-6
+!mv /content/results.zip /content/drive/MyDrive/mnli-6/
+```
+#### Fine-tune the pretrained model, with the top 33% of the most ambiguous samples from MNLI training set for 3 epochs
+```
+!python -m cartography.classification.run_glue \
+    -c configs/mnli.jsonnet \
+    --do_train \
+    --do_eval \
+    -o /content/results/
+!zip -r results.zip /content/results/
+!mkdir /content/drive/MyDrive/mnli-6-var33-3
+!mv /content/results.zip /content/drive/MyDrive/mnli-6-var33-3/
+```
+- Change the lines 10 and 16 of **mnli.jsonnet** to the following (respectively):
+```
+local DATA_DIR = "/content/pretrained/filtered/cartography_variability_0.33/" + TASK;
+"model_name_or_path": "/content/results/",
+```
+- Do as the line 180 of **run_glue.py** suggests.
+- To save the last checkpoint, instead of the one which results in the best dev performance, do as the lines 369-370 of **run_glue.py** suggest.
+
 
 ### Plot Data Maps
 
@@ -55,6 +99,15 @@ python -m cartography.selection.train_dy_filtering \
     --task_name $TASK \
     --model_dir $PATH_TO_MODEL_OUTPUT_DIR_WITH_TRAINING_DYNAMICS \
     --model $MODEL_NAME
+```
+#### Plot the data map of the mnli-6 model
+```
+!python -m cartography.selection.train_dy_filtering \
+    --plot \
+    --task_name MNLI \
+    --model_dir /content/pretrained/results \
+    --model roberta-base
+!mv /content/cartography/MNLI_roberta-base.pdf /content/drive/MyDrive/mnli-6
 ```
 
 #### Data Map Coordinates
@@ -85,6 +138,17 @@ Supported `$TASK`s include SNLI, QNLI, MNLI and WINOGRANDE, and `$METRIC`s inclu
 
 To select _hard-to-learn_ instances, set `$METRIC` as "confidence" and for _ambiguous_, set `$METRIC` as "variability". For _easy-to-learn_ instances: set `$METRIC` as "confidence" and use the flag `--worst`.
 
+#### Filter the most ambiguous samples from the MNLI training set
+```
+!python -m cartography.selection.train_dy_filtering \
+    --filter \
+    --task_name MNLI \
+    --model_dir /content/pretrained/results \
+    --metric variability \
+    --data_dir /content/data/glue
+!zip -r filtered-var.zip /content/filtered/
+!mv /content/filtered-var.zip /content/drive/MyDrive/mnli-6/
+```
 
 ### Contact and Reference
 
