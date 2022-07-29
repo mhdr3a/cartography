@@ -192,7 +192,7 @@ def write_filtered_data(args, train_dy_metrics):
   sorted_scores = train_dy_metrics.sort_values(by=[args.metric],
                                                ascending=is_ascending)
 
-  original_train_file = os.path.join(os.path.join(args.data_dir, args.task_name), f"train.tsv")
+  original_train_file = os.path.join(os.path.join(args.data_dir, args.task_name), f"snli_1.0_train.txt")
   train_numeric, header = read_data(original_train_file, task_name=args.task_name, guid_as_int=True)
 
   for fraction in [0.01, 0.05, 0.10, 0.1667, 0.25, 0.3319, 0.50, 0.75]:
@@ -207,7 +207,7 @@ def write_filtered_data(args, train_dy_metrics):
                   to_dir=outdir)
 
     num_samples = int(fraction * len(train_numeric))
-    with open(os.path.join(outdir, f"train.tsv"), "w") as outfile:
+    with open(os.path.join(outdir, f"snli_1.0_train.txt"), "w") as outfile:
       outfile.write(header + "\n")
       selected = sorted_scores.head(n=num_samples+1)
       if args.both_ends:
