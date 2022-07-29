@@ -15,10 +15,10 @@ class SNLIProcessor(DataProcessor):
         for (i, line) in enumerate(lines):
             if i == 0:
                 continue
-            guid = line[2] #"%s-%s" % (set_type, line[0])
-            text_a = line[7]
-            text_b = line[8]
-            label = line[-1]
+            guid = line[8] #"%s-%s" % (set_type, line[0])
+            text_a = line[5]
+            text_b = line[6]
+            label = line[0]
             if label == "-" or label == "":
                 continue
             examples.append(
@@ -30,12 +30,12 @@ class SNLIProcessor(DataProcessor):
 
     def get_train_examples(self, data_dir):
         """See base class."""
-        return self.get_examples(os.path.join(data_dir, "train.tsv"), "train")
+        return self.get_examples(os.path.join(data_dir, "snli_1.0_train.txt"), "train")
 
     def get_dev_examples(self, data_dir):
         """See base class."""
-        return self.get_examples(os.path.join(data_dir, "dev.tsv"), "dev")
+        return self.get_examples(os.path.join(data_dir, "snli_1.0_dev.txt"), "dev")
 
     def get_test_examples(self, data_dir):
         """See base class."""
-        return self.get_examples(os.path.join(data_dir, "test.tsv"), "test")
+        return self.get_examples(os.path.join(data_dir, "snli_1.0_test.txt"), "test")
