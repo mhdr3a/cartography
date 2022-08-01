@@ -30,7 +30,7 @@ def read_data(file_path: str,
                         guid_as_int=guid_as_int)
   elif task_name == "SNLI":
     return read_glue_tsv(file_path,
-                        guid_index=2,
+                        guid_index=8,
                         guid_as_int=guid_as_int)
   elif task_name == "WINOGRANDE":
     return read_glue_tsv(file_path,
