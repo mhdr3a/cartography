@@ -69,7 +69,10 @@ def copy_dev_test(task_name: str,
   if task_name == "MNLI":
     dev_filename = "dev_matched.tsv"
     test_filename = "dev_mismatched.tsv"
-  elif task_name in ["SNLI", "QNLI", "WINOGRANDE"]:
+  elif task_name == "SNLI":
+    dev_filename = "snli_1.0_dev.txt"
+    test_filename = "snli_1.0_test.txt"
+  elif task_name in ["QNLI", "WINOGRANDE"]:
     dev_filename = f"dev{extension}"
     test_filename = f"test{extension}"
   else:
